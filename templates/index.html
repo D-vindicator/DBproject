@@ -1,0 +1,129 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+<head>
+    <title>Vehicle Purchase</title>
+</head>
+
+<body>
+<!--Header: sign up / in-->
+<div>
+    <input type="button" value="Sign up" onclick="document.getElementById('signup').style.visibility='visible'" />
+    <div id="signup" style="visibility:hidden">
+        <!-- <form method="POST" action=""> -->
+            Role:
+            <select>
+                <option value ="Supplier">Supplier</option>
+                <option value ="Customer">Customer</option>
+            </select><br>
+            User name:          <input type="text" name="name"><br>
+            Shipping address:   <input type="text" name="address"><br>
+            Telephone number:   <input type="text" name="phone"><br>
+            Email address:      <input type="text" name="email"><br>
+            <input type="submit" value="Sign up">
+        </form>
+    </div>
+    <input type="button" value="Sign in" onclick="document.getElementById('signin').style.visibility='visible'" />
+    <div id="signin" style="visibility:hidden">
+        <!-- <form method="POST" action=""> -->
+            User Id:<br><input type="text" name="uid"><br>
+            <input type="submit" value="Sign in">
+        </form>
+    </div>
+</div>
+<!--Body: vehicle list-->
+<div>
+    <h1>Vehicle list</h1>
+    <div>
+        <!--list all the categories here-->
+        <!-- {% for n in data %}
+        <div>{{n}}</div>
+        {% endfor %} -->
+        <div>Sedan</div>
+        <div>SUV</div>
+    </div>
+    <div>
+        <p>description for this category...</p>
+        <!--list all the vehicles under this category here-->
+        <!-- {% for n in data %}
+        <div>{{n}}</div>
+        {% endfor %} -->
+        <div>
+            Name:       <span>2016 BMW 328i</span><br>
+            <img src="https://images-na.ssl-images-amazon.com/images/I/718-xSmiSuL._UY560_.jpg"><br>
+            Description:<span>A wide variety of options; athletic driving feel; fuel efficiency; high-tech options; long list of appearance packages and trims; compact size and maneuverability; practicality and comfort</span><br>
+            UnitInStock:<span>2</span><br>
+            Price:      <span>38350</span><br>
+            Discount:   <span>2000 cashback</span><br>
+            <!--buy now-->
+            <input type="button" value="Buy Now" onclick="document.getElementById('buynow').style.visibility='visible'" />
+            <div id="buynow" style="visibility:hidden">
+                <!-- <form method="POST" action=""> -->
+                    Choose payment method:
+                    <!--list all the payment options here-->
+                    <select>
+                        <option value ="aaa">aaa</option>
+                    </select><br>
+
+                    <input type="button" value="Add new payment method" onclick="document.getElementById('addpayment').style.visibility='visible'" />
+                    <div id="addpayment" style="visibility:hidden">
+                        <!-- <form method="POST" action=""> -->
+                            Account number: <input type="text" name="accountNo"><br>
+                            Billing address:<input type="text" name="billingAddress"><br>
+                            <input type="submit" value="Use this payment method">
+                        </form>
+                    </div>
+                    
+                    Choose shipper:
+                    <!--list all the shippers here-->
+                    <select>
+                        <option value ="bbb">bbb</option>
+                    </select><br>
+                    <input type="submit" value="Buy Now">
+                </form>
+            </div>
+            <!--write review-->
+            <input type="button" value="Write Review" onclick="document.getElementById('writereview').style.visibility='visible'" />
+            <div id="writereview" style="visibility:hidden">
+                <!-- <form method="POST" action=""> -->
+                    <input type="text" name="review content"><br>
+                    <input type="submit" value="Submit Review">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Footer: view order / add vehicle-->
+<div>
+    <input type="button" value="View my orders" onclick="document.getElementById('vieworders').style.visibility='visible'" />
+    <div id="vieworders" style="visibility:hidden">
+        <!--list all the orders of this customer-->
+        <div>
+            Shipper:        <span>someShipper</span><br>
+            Vehicle:        <span>someVehicle</span><br>
+            Required date:  <span>someDate</span><br>
+            Shipping date:  <span>someDate</span><br>
+            Timestamp:      <span>someDate</span><br>
+        </div>
+    </div>
+
+    <input type="button" value="Add vehicle" onclick="document.getElementById('addvehicle').style.visibility='visible'" />
+    <div id="addvehicle" style="visibility:hidden">
+        <!-- <form method="POST" action=""> -->
+            Name:       <input type="text" name="name"><br>
+            Picture:    <input type="text" name="picture"><br>
+            Description:<input type="text" name="description"><br>
+            UnitInStock:<input type="text" name="unitInStock"><br>
+            Price:      <input type="text" name="price"><br>
+            Discount:   <input type="text" name="discount"><br>
+            <input type="submit" value="Add this item">
+        </form>
+    </div>
+</div>
+</body>
+</html>
