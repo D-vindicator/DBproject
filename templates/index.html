@@ -15,12 +15,13 @@
 <div>
     <input type="button" value="Sign up" onclick="document.getElementById('signup').style.visibility='visible'" />
     <div id="signup" style="visibility:hidden">
-        <!-- <form method="POST" action=""> -->
+        <form method="POST" action="/signup">
             Role:
             <select>
                 <option value ="Supplier">Supplier</option>
                 <option value ="Customer">Customer</option>
             </select><br>
+            User ID:            <input type="text" name="uid"><br>
             User name:          <input type="text" name="name"><br>
             Shipping address:   <input type="text" name="address"><br>
             Telephone number:   <input type="text" name="phone"><br>
@@ -125,5 +126,14 @@
         </form>
     </div>
 </div>
+
+  <h1>User List (DEBUG)</h1>
+  <div>{{data}}</div>
+
+  <div>
+    {% for n in data %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
 </body>
 </html>

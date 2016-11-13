@@ -62,7 +62,9 @@ engine = create_engine(DATABASEURI)
 # 
 # The setup code should be deleted once you switch to using the Part 2 postgresql database
 #
-engine.execute("""DROP TABLE IF EXISTS test;""")
+
+#engine.execute("""DROP TABLE IF EXISTS test;""")
+
 # engine.execute("""CREATE TABLE IF NOT EXISTS test (
 #   id serial,
 #   name text
@@ -134,6 +136,7 @@ def index():
   #
   # example of a database query
   #
+
   cursor = g.conn.execute("SELECT name FROM Users")
   names = []
   for result in cursor:
@@ -174,6 +177,19 @@ def index():
   # for example, the below file reads template/index.html
   #
   return render_template("index.html", **context)
+
+@app.route('/signup', methods=['POST'])
+def signup():
+  uid = request.form['uid']
+  name = request.form['name']
+  address = request.form['address']
+  phone = request.form['phone']
+  email = request.form['email']
+  g.conn.execute('INSERT into Users (uid, name, address, phone, email) VALUES (%s, %s, %s, %s, %s)', 
+    (uid, name, address, phone, email))
+
+  return redirect('/')
+
 
 #
 # This is an example of a different path.  You can see it at
