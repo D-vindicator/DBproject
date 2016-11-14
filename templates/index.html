@@ -42,25 +42,26 @@
     <h1>Vehicle list</h1>
     <div>
         <!--list all the categories here-->
-        <select name="categories">
-            {% for n in categories %}
-            <option value = {{n['id']}}>{{n['name']}}</option>
-            {% endfor %}
-        </select>
+        <form method="POST" action = "/">
+            <select name="categories" onchange="this.form.submit()">
+                {% for n in categories %}
+                <option value = {{n['id']}}>{{n['name']}}</option>
+                {% endfor %}
+            </select>
+        </form>
     </div>
     <div>
-        <p>description for this category...</p>
+        <p>List of category: {{selectedCategory}}</p>
         <!--list all the vehicles under this category here-->
-        <!-- {% for n in data %}
-        <div>{{n}}</div>
-        {% endfor %} -->
+        {% for n in vehicleList %}
         <div>
-            Name:       <span>2016 BMW 328i</span><br>
-            <img src="https://images-na.ssl-images-amazon.com/images/I/718-xSmiSuL._UY560_.jpg"><br>
-            Description:<span>A wide variety of options; athletic driving feel; fuel efficiency; high-tech options; long list of appearance packages and trims; compact size and maneuverability; practicality and comfort</span><br>
-            UnitInStock:<span>2</span><br>
-            Price:      <span>38350</span><br>
-            Discount:   <span>2000 cashback</span><br>
+            Name:       <span>{{n['name']}}</span><br>
+            <img src={{n['picture']}}><br>
+            Description:<span>{{n['description']}}</span><br>
+            UnitInStock:<span>{{n['unitInStock']}}</span><br>
+            Price:      <span>{{n['price']}}</span><br>
+            Discount:   <span>{{n['discount']}}</span><br>
+
             <!--buy now-->
             <input type="button" value="Buy Now" onclick="document.getElementById('buynow').style.visibility='visible'" />
             <div id="buynow" style="visibility:hidden">
@@ -77,7 +78,6 @@
                             Account number: <input type="text" name="accountNo"><br>
                             Billing address:<input type="text" name="billingAddress"><br>
                             <input type="submit" value="Use this payment method">
-                        </form>
                     </div>
                     
                     Choose shipper:
@@ -86,7 +86,6 @@
                         <option value ="bbb">bbb</option>
                     </select><br>
                     <input type="submit" value="Buy Now">
-                </form>
             </div>
             <!--write review-->
             <input type="button" value="Write Review" onclick="document.getElementById('writereview').style.visibility='visible'" />
@@ -94,9 +93,10 @@
                 <!-- <form method="POST" action=""> -->
                     <input type="text" name="review content"><br>
                     <input type="submit" value="Submit Review">
-                </form>
             </div>
+        
         </div>
+        {% endfor %}
     </div>
 </div>
 <!--Footer: view order / add vehicle-->

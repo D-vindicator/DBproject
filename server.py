@@ -117,7 +117,7 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def index():
   """
   request is a special object that Flask provides to access web request information:
@@ -130,9 +130,6 @@ def index():
   """
 
   # DEBUG: this is debugging code to see what request looks like
-  print request.args
-
-
   #
   # example of a database query
   #
@@ -142,8 +139,19 @@ def index():
   for result in cursor:
     print result
     categories.append({'name' :result[1], 'id': result[0]})  # can also be accessed using result[0]
+  
+  
+  vehicleList = []
+  if request.method == "POST":
+    cursor = g.conn.execute("SELECT name FROM Categories WHERE categoryId = %s", request.form["categories"])
+    for result in cursor:
+      selectedCategory = result[0]
+      vehicles = g.conn.execute("SELECT * FROM Vehicle_supply where vid=(SELECT vid FROM VehiclesBelongs where categoryId= %s)", selectedCategory)
+      for i in vehicles:
+        vehicleList.append({'name': i['name'], 'picture': i['picture'], 'description': i['description'],
+          'unitInStock': i['unitInStock'], 'price': i['price'], 'discount': i['discount']})
+
   cursor.close()
-  context = dict(categories = categories) 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
   # pass data to a template and dynamically generate HTML based on the data
@@ -170,7 +178,7 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  
+  context = dict(categories = categories, selectedCategory = selectedCategory, vehicleList = vehicleList)
 
 
   #
@@ -205,6 +213,12 @@ def signup():
 # notice that the functio name is another() rather than index()
 # the functions for each app.route needs to have different names
 #
+
+
+
+
+
+
 @app.route('/another')
 def another():
   return render_template("anotherfile.html")
