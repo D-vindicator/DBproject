@@ -137,12 +137,12 @@ def index():
   # example of a database query
   #
 
-  cursor = g.conn.execute("SELECT name FROM Users")
-  names = []
+  cursor = g.conn.execute("SELECT name FROM Categories")
+  categories = []
   for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
+    categories.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
-
+  context = dict(categories = categories) 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
   # pass data to a template and dynamically generate HTML based on the data
@@ -169,7 +169,7 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
+  
 
 
   #
@@ -185,8 +185,13 @@ def signup():
   address = request.form['address']
   phone = request.form['phone']
   email = request.form['email']
+  role = request.form['role'].lower()
   g.conn.execute('INSERT into Users (uid, name, address, phone, email) VALUES (%s, %s, %s, %s, %s)', 
     (uid, name, address, phone, email))
+  if role == 'customer':
+    g.conn.execute('INSERT into Customers VALUES (%s);', (uid))
+  elif role == 'supplier':
+    g.conn.execute('INSERT into Suppliers VALUES (%s);', (uid))
 
   return redirect('/')
 

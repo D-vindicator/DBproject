@@ -16,13 +16,9 @@
     <input type="button" value="Sign up" onclick="document.getElementById('signup').style.visibility='visible'" />
     <div id="signup" style="visibility:hidden">
         <form method="POST" action="/signup">
-            Role:
-            <select>
-                <option value ="Supplier">Supplier</option>
-                <option value ="Customer">Customer</option>
-            </select><br>
             User ID:            <input type="text" name="uid"><br>
             User name:          <input type="text" name="name"><br>
+            Customer or Supplier: <input type="text" name="role"><br>
             Shipping address:   <input type="text" name="address"><br>
             Telephone number:   <input type="text" name="phone"><br>
             Email address:      <input type="text" name="email"><br>
@@ -42,11 +38,9 @@
     <h1>Vehicle list</h1>
     <div>
         <!--list all the categories here-->
-        <!-- {% for n in data %}
+        {% for n in categories %}
         <div>{{n}}</div>
-        {% endfor %} -->
-        <div>Sedan</div>
-        <div>SUV</div>
+        {% endfor %}
     </div>
     <div>
         <p>description for this category...</p>
