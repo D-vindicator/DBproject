@@ -29,12 +29,13 @@
             <input type="submit" value="Sign up">
         </form>
     </div>
-    <input type="button" value="Sign in" onclick="document.getElementById('signin').style.visibility='visible'" />
-    <div id="signin" style="visibility:hidden">
-        <!-- <form method="POST" action=""> -->
-            User Id:<br><input type="text" name="uid"><br>
+    <div id="signin">
+        <form method="POST" action="/login">
+            User Id:<input type="text" name="uid"><br>
             <input type="submit" value="Sign in">
         </form>
+        {{currentUidMessage}}
+        <a href="/logout">log out</a>
     </div>
 </div>
 <!--Body: vehicle list-->
@@ -44,6 +45,7 @@
         <!--list all the categories here-->
         <form method="POST" action = "/">
             <select name="categories" onchange="this.form.submit()">
+                <option value = "none">vehicle category</option>
                 {% for n in categories %}
                 <option value = {{n['id']}}>{{n['name']}}</option>
                 {% endfor %}
@@ -56,43 +58,57 @@
         {% for n in vehicleList %}
         <div>
             Name:       <span>{{n['name']}}</span><br>
-            <img src={{n['picture']}}><br>
+            <img src={{n['picture']}} width='500'><br>
             Description:<span>{{n['description']}}</span><br>
             UnitInStock:<span>{{n['unitInStock']}}</span><br>
             Price:      <span>{{n['price']}}</span><br>
             Discount:   <span>{{n['discount']}}</span><br>
+            <div>
+                Reviews:<br>
+                {% for i in n['reviewList'] %}
+                <span>User {{i['uid']}} said: {{i['content']}}</span><br>
+                {% endfor %}
+            </div>
+
+            <!--write review-->
+            <div id="writereview">
+                <form method="POST" action="/writereview">
+                    <input type="hidden" name="vid" value={{n['vid']}} />
+                    <input type="text" name="content"><br>
+                    <input type="submit" value="Submit Review">
+                </form>
+            </div>
 
             <!--buy now-->
-            <input type="button" value="Buy Now" onclick="document.getElementById('buynow').style.visibility='visible'" />
-            <div id="buynow" style="visibility:hidden">
-                <!-- <form method="POST" action=""> -->
+            <input type="button" value="Buy Now" onclick="document.getElementById('{{n['vid']}}').style.visibility='visible'" />
+            <div id={{n['vid']}} style="visibility:hidden">
+                <form method="POST" action="/buynow">
+                    <input type="hidden" name="vid" value={{n['vid']}} />
                     Choose payment method:
                     <!--list all the payment options here-->
-                    <select>
-                        <option value ="aaa">aaa</option>
+                    <select name="paymentId">
+                        <option value = none>select payment</option>
+                        {% for i in paymentList %}
+                        <option value = {{i['paymentId']}}>{{i['accountNo']}}</option>
+                        {% endfor %}
                     </select><br>
 
                     <input type="button" value="Add new payment method" onclick="document.getElementById('addpayment').style.visibility='visible'" />
                     <div id="addpayment" style="visibility:hidden">
-                        <!-- <form method="POST" action=""> -->
                             Account number: <input type="text" name="accountNo"><br>
                             Billing address:<input type="text" name="billingAddress"><br>
-                            <input type="submit" value="Use this payment method">
                     </div>
                     
                     Choose shipper:
                     <!--list all the shippers here-->
-                    <select>
-                        <option value ="bbb">bbb</option>
+                    <select name="shipperId">
+                        <option value ="none">select shipper</option>
+                        {% for i in shippers %}
+                        <option value = {{i['shipperId']}}>{{i['company']}}</option>
+                        {% endfor %}
                     </select><br>
-                    <input type="submit" value="Buy Now">
-            </div>
-            <!--write review-->
-            <input type="button" value="Write Review" onclick="document.getElementById('writereview').style.visibility='visible'" />
-            <div id="writereview" style="visibility:hidden">
-                <!-- <form method="POST" action=""> -->
-                    <input type="text" name="review content"><br>
-                    <input type="submit" value="Submit Review">
+                    <input type="submit" value="Place order">
+                </form>
             </div>
         
         </div>
@@ -104,18 +120,25 @@
     <input type="button" value="View my orders" onclick="document.getElementById('vieworders').style.visibility='visible'" />
     <div id="vieworders" style="visibility:hidden">
         <!--list all the orders of this customer-->
+        {% for i in orders %}
         <div>
-            Shipper:        <span>someShipper</span><br>
-            Vehicle:        <span>someVehicle</span><br>
-            Required date:  <span>someDate</span><br>
-            Shipping date:  <span>someDate</span><br>
-            Timestamp:      <span>someDate</span><br>
+            OrderId:        <span>{{i['orderId']}}</span><br>
+            Shipper:        <span>{{i['shipper']}}</span><br>
+            Vehicle:        <span>{{i['vehicle']}}</span><br>
         </div>
+        <br>
+        {% endfor %}
     </div>
 
     <input type="button" value="Add vehicle" onclick="document.getElementById('addvehicle').style.visibility='visible'" />
     <div id="addvehicle" style="visibility:hidden">
-        <!-- <form method="POST" action=""> -->
+        <form method="POST" action="addvehicle">
+            <select name="categories">
+                <option value = "none">vehicle category</option>
+                {% for n in categories %}
+                <option value = {{n['id']}}>{{n['name']}}</option>
+                {% endfor %}
+            </select>
             Name:       <input type="text" name="name"><br>
             Picture:    <input type="text" name="picture"><br>
             Description:<input type="text" name="description"><br>
@@ -126,14 +149,5 @@
         </form>
     </div>
 </div>
-
-  <h1>User List (DEBUG)</h1>
-  <div>{{data}}</div>
-
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
 </body>
 </html>

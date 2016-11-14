@@ -18,11 +18,12 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, session, request, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 #
 # The following uses the postgresql test.db -- you can use this for debugging purposes
@@ -133,23 +134,45 @@ def index():
   #
   # example of a database query
   #
-
+  currentUid = ''
+  currentUidMessage = 'Not logged in yet!'
+  if 'uid' in session:
+    currentUid = session['uid']
+    currentUidMessage = 'Logged in as ' + currentUid
   cursor = g.conn.execute("SELECT * FROM Categories")
   categories = []
   for result in cursor:
-    print result
     categories.append({'name' :result[1], 'id': result[0]})  # can also be accessed using result[0]
+
+  cursor = g.conn.execute("SELECT * FROM PaymentInfo Where uid = %s", currentUid)
+  paymentList = []
+  for result in cursor:
+    paymentList.append({'paymentId' :result[1], 'accountNo': result[2], 'billingAddress': result[3]})  # can also be accessed using result[0]
   
+  cursor = g.conn.execute("SELECT * FROM Shippers")
+  shippers = []
+  for result in cursor:
+    shippers.append({'shipperId' :result[0], 'phone': result[1], 'company': result[2]}) 
+
+  cursor = g.conn.execute("SELECT O.orderId, S.company, V.name FROM Orders AS O, Shippers AS S, Vehicle_supply AS V WHERE O.uid = %s AND O.shipperId=S.shipperId AND O.vid=V.vid", currentUid)
+  orders = []
+  for result in cursor:
+    orders.append({'orderId' :result[0], 'shipper': result[1], 'vehicle': result[2]}) 
   
   vehicleList = []
+  selectedCategory = ''
   if request.method == "POST":
     cursor = g.conn.execute("SELECT name FROM Categories WHERE categoryId = %s", request.form["categories"])
     for result in cursor:
       selectedCategory = result[0]
-      vehicles = g.conn.execute("SELECT * FROM Vehicle_supply where vid=(SELECT vid FROM VehiclesBelongs where categoryId= %s)", selectedCategory)
+      vehicles = g.conn.execute("SELECT * FROM Vehicle_supply where vid in(SELECT vid FROM VehiclesBelongs where categoryId= %s)", request.form["categories"])
       for i in vehicles:
-        vehicleList.append({'name': i['name'], 'picture': i['picture'], 'description': i['description'],
-          'unitInStock': i['unitInStock'], 'price': i['price'], 'discount': i['discount']})
+        reviewDBresult = g.conn.execute('SELECT uid, content FROM CustomerReveiws where vid = %s', i[0])
+        reviewList = []
+        for j in reviewDBresult:
+          reviewList.append({'uid': j[0], 'content': j[1]})
+        vehicleList.append({'name': i[2], 'picture': i[3], 'description': i[4],
+          'unitInStock': i[5], 'price': i[6], 'discount': i[7], 'vid': i[0], 'reviewList': reviewList})
 
   cursor.close()
   #
@@ -178,7 +201,9 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(categories = categories, selectedCategory = selectedCategory, vehicleList = vehicleList)
+  context = dict(categories = categories, selectedCategory = selectedCategory, vehicleList = vehicleList, 
+    currentUid = currentUid, currentUidMessage = currentUidMessage, paymentList = paymentList, 
+    shippers = shippers, orders = orders)
 
 
   #
@@ -214,9 +239,73 @@ def signup():
 # the functions for each app.route needs to have different names
 #
 
+@app.route('/writereview', methods = ['POST'])
+def writereview():
+  import time
+  timestamp = int(time.time())
+  vid = request.form['vid']
+  content = request.form['content']
+  uid = session['uid']
+  reviewId = 'r' + str(timestamp)
+  g.conn.execute('INSERT into CustomerReveiws VALUES (%s, %s, %s, %s)', 
+    vid, uid, reviewId, content)
+  return redirect('/')
+
+@app.route('/buynow', methods = ['POST'])
+def buynow():
+  import time
+  timestamp = int(time.time())
+  if request.form['accountNo'] != '' and request.form['billingAddress']!= '':
+    paymentId = 'p' + str(timestamp)
+    g.conn.execute('INSERT into PaymentInfo VALUES (%s, %s, %s, %s)', 
+      session['uid'], paymentId, request.form['accountNo'], request.form['billingAddress'])
+  else:
+    paymentId = request.form['paymentId']
+  orderId = 'o' + str(timestamp)
+  shipperId = request.form['shipperId']
+  vid = request.form['vid']
+  uid = session['uid']
+  
+  # requiredDate
+  # shippingDate
+  g.conn.execute('INSERT into Orders (orderId, shipperId, vid, uid, paymentId) VALUES (%s, %s, %s, %s, %s)', 
+    orderId, shipperId, vid, uid, paymentId)
+  #print shipperId, vid, uid, paymentId
+  return redirect('/')
+
+@app.route('/addvehicle', methods = ['POST'])
+def addvehicle():
+  import time
+  timestamp = int(time.time())
+  name = request.form['name']
+  picture = request.form['picture']
+  description = request.form['description']
+  unitInStock = request.form['unitInStock']
+  price = request.form['price']
+  discount = request.form['discount']
+  categories = request.form['categories']
+  vid = 'v' + str(timestamp)
+  uid = session['uid']
+  g.conn.execute('INSERT into Vehicle_supply VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', 
+    vid, uid, name, picture, description, unitInStock, price, discount)
+  g.conn.execute('INSERT into VehiclesBelongs VALUES (%s, %s)', vid, categories)
+  return redirect('/')
 
 
+@app.route('/login', methods = ['POST'])
+def login():
+  result = g.conn.execute('SELECT * from Users Where uid=%s', request.form['uid'])
+  authenticated = 0
+  for i in result:
+    authenticated = 1
+  if authenticated == 1:
+    session['uid'] = request.form['uid']
+  return redirect('/')
 
+@app.route('/logout')
+def logout():
+  session.pop('uid', None)
+  return redirect('/')
 
 
 @app.route('/another')
@@ -234,10 +323,10 @@ def another():
 #   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+# @app.route('/login')
+# def login():
+#     abort(401)
+#     this_is_never_executed()
 
 
 if __name__ == "__main__":
