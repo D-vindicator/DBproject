@@ -137,10 +137,11 @@ def index():
   # example of a database query
   #
 
-  cursor = g.conn.execute("SELECT name FROM Categories")
+  cursor = g.conn.execute("SELECT * FROM Categories")
   categories = []
   for result in cursor:
-    categories.append(result['name'])  # can also be accessed using result[0]
+    print result
+    categories.append({'name' :result[1], 'id': result[0]})  # can also be accessed using result[0]
   cursor.close()
   context = dict(categories = categories) 
   #
@@ -185,7 +186,7 @@ def signup():
   address = request.form['address']
   phone = request.form['phone']
   email = request.form['email']
-  role = request.form['role'].lower()
+  role = request.form['role']
   g.conn.execute('INSERT into Users (uid, name, address, phone, email) VALUES (%s, %s, %s, %s, %s)', 
     (uid, name, address, phone, email))
   if role == 'customer':
